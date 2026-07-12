@@ -1,0 +1,38 @@
+name: Deploy to reg.ru hosting (SFTP)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sftp-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check SFTP secrets
+        id: check
+        run: |
+          if [ -n "${{ secrets.SFTP_USERNAME }}" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "SFTP secrets are not configured, skipping deploy." >&2
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy via SFTP
+        if: steps.check.outputs.ok == 'true'
+        env:
+          SFTP_SERVER: ${{ secrets.SFTP_SERVER || '31.31.196.177' }}
+          SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          REMOTE_DIR: ${{ secrets.SFTP_SERVER_DIR || 'www/xn----htbkhnldzg7g.online' }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          lftp -u "$SFTP_USERNAME,$SFTP_PASSWORD" "sftp://$SFTP_SERVER" \
+            -e "set sftp:auto-confirm yes; mirror -R --verbose --exclude-glob .git* --exclude ^\.github/ --exclude-glob README.md . $REMOTE_DIR; bye"

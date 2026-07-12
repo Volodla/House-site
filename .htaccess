@@ -1,0 +1,18 @@
+RewriteEngine On
+
+# Редирект на HTTPS (TLS терминируется на nginx-прокси хостинга,
+# поэтому проверяем X-Forwarded-Proto, а не HTTPS)
+RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# Кэширование статики
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/png "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType text/css "access plus 1 hour"
+  ExpiresByType application/javascript "access plus 1 hour"
+</IfModule>
+
+AddDefaultCharset UTF-8

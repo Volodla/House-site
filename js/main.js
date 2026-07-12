@@ -105,7 +105,7 @@ document.addEventListener('keydown', (e) => {
  */
 const TELEGRAM = {
   botToken: '8890037003:AAF5T3dSL5JVGfEhG2x6fF9g4YU-nlBJ2nM',
-  chatId: '',
+  chatId: '82544172',
 };
 
 const form = document.getElementById('leadForm');

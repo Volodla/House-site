@@ -99,16 +99,13 @@ document.addEventListener('keydown', (e) => {
 
 /* ===== Форма заявки → Telegram ===== */
 /*
- * Автоматическая отправка работает через Telegram-бота.
- * Создайте бота у @BotFather, напишите ему /start и заполните два поля ниже
- * (как получить chatId — см. README, раздел «Заявки в Telegram»).
- * Пока поля пустые, заявка открывается как готовое сообщение
- * в чате Telegram с @zheorgiy — посетителю остаётся нажать «Отправить».
+ * Заявка отправляется сообщением от бота @Zayavki_trilogiya_bot.
+ * chatId — числовой id чата владельца (как получить — см. README,
+ * раздел «Заявки в Telegram»).
  */
 const TELEGRAM = {
   botToken: '8890037003:AAF5T3dSL5JVGfEhG2x6fF9g4YU-nlBJ2nM',
   chatId: '',
-  fallbackUsername: 'zheorgiy',
 };
 
 const form = document.getElementById('leadForm');
@@ -136,18 +133,10 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = leadText();
 
-  if (!TELEGRAM.botToken || !TELEGRAM.chatId) {
-    window.open(
-      `https://t.me/${TELEGRAM.fallbackUsername}?text=${encodeURIComponent(text)}`,
-      '_blank'
-    );
-    showStatus(true, 'Открыли чат в Telegram — нажмите «Отправить», и заявка сразу придёт нам.');
-    return;
-  }
-
   const submitBtn = form.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
   try {
+    if (!TELEGRAM.botToken || !TELEGRAM.chatId) throw new Error('not configured');
     const res = await fetch(`https://api.telegram.org/bot${TELEGRAM.botToken}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -157,7 +146,7 @@ form.addEventListener('submit', async (e) => {
     showStatus(true, 'Спасибо! Заявка отправлена — перезвоним в течение часа.');
     form.reset();
   } catch {
-    showStatus(false, 'Не получилось отправить автоматически. Позвоните или напишите нам в мессенджер.');
+    showStatus(false, 'Не получилось отправить заявку. Позвоните нам: +7 (916) 910-90-85 — или напишите в WhatsApp/Telegram.');
   } finally {
     submitBtn.disabled = false;
   }

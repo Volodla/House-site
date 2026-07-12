@@ -19,7 +19,7 @@ nav.querySelectorAll('a').forEach((link) =>
 );
 
 /* ===== Ипотечный калькулятор ===== */
-const PRICE = 15_000_000;
+const PRICE = 15_900_000;
 const RATE = 0.06;
 
 const downPaymentInput = document.getElementById('downPayment');

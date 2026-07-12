@@ -50,28 +50,27 @@ const TELEGRAM = {
 
 ## Домен купить-дом.online и хостинг reg.ru
 
-Домен `купить-дом.online` (punycode: `xn----htbkhnldzg7g.online`) уже привязан
-к хостингу reg.ru (сервер `server194.hosting.reg.ru`, DNS: `ns1/ns2.hosting.reg.ru`).
+Сайт опубликован: **https://купить-дом.online** (punycode:
+`xn----htbkhnldzg7g.online`). Хостинг reg.ru, сервер `server194.hosting.reg.ru`,
+папка сайта `www/xn----htbkhnldzg7g.online/`. SSL-сертификат Let's Encrypt
+выпущен через панель ISPmanager (продлевается автоматически), HTTP
+перенаправляется на HTTPS через `.htaccess`.
 
-### Вариант А — публикация на хостинге reg.ru (рекомендуется)
+### Автодеплой на хостинг (вариант А, рекомендуется)
 
 Workflow `.github/workflows/deploy-hosting.yml` при каждом пуше в `main`
-выгружает сайт на хостинг по FTP. Нужно один раз добавить секреты:
+выгружает сайт на хостинг по SFTP. Чтобы он заработал, добавьте секреты
+в GitHub: **Settings → Secrets and variables → Actions → New repository secret**:
 
-1. В личном кабинете reg.ru откройте карточку хостинга →
-   «Доступы» → найдите **логин и пароль FTP** (это не логин от личного кабинета,
-   у FTP отдельная учётка вида `u1234567`).
-2. В GitHub: **Settings → Secrets and variables → Actions → New repository secret**:
-   - `FTP_USERNAME` — FTP-логин;
-   - `FTP_PASSWORD` — FTP-пароль;
-   - `FTP_SERVER` — если сервер отличается от `server194.hosting.reg.ru`;
-   - `FTP_SERVER_DIR` — если путь к папке сайта отличается от
-     `www/xn----htbkhnldzg7g.online/`.
-3. Запустите workflow «Deploy to reg.ru hosting (FTP)» вручную (Actions → Run
-   workflow) или сделайте любой пуш в `main`.
+- `SFTP_USERNAME` — логин хостинга (`u0772242`);
+- `SFTP_PASSWORD` — пароль от **панели управления/SSH/SFTP** (не FTP-пароль!
+  Смотрите в reg.ru: карточка хостинга → «Доступы» → «Доступ в панель
+  управления, SSH, SFTP»);
+- `SFTP_SERVER` — если сервер отличается от `31.31.196.177`;
+- `SFTP_SERVER_DIR` — если путь отличается от `www/xn----htbkhnldzg7g.online`.
 
-Не забудьте включить SSL-сертификат для домена в панели хостинга reg.ru
-(бесплатный Let's Encrypt подключается в один клик).
+Пока секреты не добавлены, workflow просто пропускает деплой (сайт можно
+выгружать вручную по SFTP тем же логином/паролем).
 
 ### Вариант Б — GitHub Pages + домен
 
@@ -105,6 +104,7 @@ css/style.css           — стили
 js/main.js              — меню, галерея, калькулятор ипотеки, форма → Telegram
 assets/photos/          — фотографии (добавить)
 assets/placeholder.svg  — заглушка вместо отсутствующих фото
-.github/workflows/deploy-hosting.yml — автодеплой на хостинг reg.ru по FTP
+.htaccess               — редирект HTTP→HTTPS, кэширование статики
+.github/workflows/deploy-hosting.yml — автодеплой на хостинг reg.ru по SFTP
 .github/workflows/deploy.yml         — автодеплой на GitHub Pages (запасной)
 ```

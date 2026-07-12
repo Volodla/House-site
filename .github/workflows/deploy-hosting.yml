@@ -1,4 +1,4 @@
-name: Deploy to reg.ru hosting (FTP)
+name: Deploy to reg.ru hosting (SFTP)
 
 on:
   push:
@@ -6,37 +6,33 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ftp-deploy
+  group: sftp-deploy
   cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Деплой выполняется только если в репозитории заданы секреты FTP
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check FTP secrets
+      - name: Check SFTP secrets
         id: check
         run: |
-          if [ -n "${{ secrets.FTP_USERNAME }}" ]; then
+          if [ -n "${{ secrets.SFTP_USERNAME }}" ]; then
             echo "ok=true" >> "$GITHUB_OUTPUT"
           else
-            echo "FTP secrets are not configured, skipping deploy." >&2
+            echo "SFTP secrets are not configured, skipping deploy." >&2
             echo "ok=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Deploy via FTP
+      - name: Deploy via SFTP
         if: steps.check.outputs.ok == 'true'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER || 'server194.hosting.reg.ru' }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          server-dir: ${{ secrets.FTP_SERVER_DIR || 'www/xn----htbkhnldzg7g.online/' }}
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.github/**
-            README.md
-            assets/photos/README.md
+        env:
+          SFTP_SERVER: ${{ secrets.SFTP_SERVER || '31.31.196.177' }}
+          SFTP_USERNAME: ${{ secrets.SFTP_USERNAME }}
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          REMOTE_DIR: ${{ secrets.SFTP_SERVER_DIR || 'www/xn----htbkhnldzg7g.online' }}
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+          lftp -u "$SFTP_USERNAME,$SFTP_PASSWORD" "sftp://$SFTP_SERVER" \
+            -e "set sftp:auto-confirm yes; mirror -R --verbose --exclude-glob .git* --exclude ^\.github/ --exclude-glob README.md . $REMOTE_DIR; bye"

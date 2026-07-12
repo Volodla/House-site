@@ -97,40 +97,67 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') openLightbox(currentIndex + 1);
 });
 
-/* ===== Форма заявки (Formspree) ===== */
+/* ===== Форма заявки → Telegram ===== */
+/*
+ * Автоматическая отправка работает через Telegram-бота.
+ * Создайте бота у @BotFather, напишите ему /start и заполните два поля ниже
+ * (как получить chatId — см. README, раздел «Заявки в Telegram»).
+ * Пока поля пустые, заявка открывается как готовое сообщение
+ * в чате Telegram с @zheorgiy — посетителю остаётся нажать «Отправить».
+ */
+const TELEGRAM = {
+  botToken: '',
+  chatId: '',
+  fallbackUsername: 'zheorgiy',
+};
+
 const form = document.getElementById('leadForm');
 const formStatus = document.getElementById('formStatus');
 
+function leadText() {
+  const data = new FormData(form);
+  const lines = [
+    '🏡 Заявка с сайта купить-дом.online',
+    `Имя: ${data.get('name')}`,
+    `Телефон: ${data.get('phone')}`,
+  ];
+  const msg = (data.get('message') || '').trim();
+  if (msg) lines.push(`Комментарий: ${msg}`);
+  return lines.join('\n');
+}
+
+function showStatus(ok, text) {
+  formStatus.hidden = false;
+  formStatus.className = 'form__status ' + (ok ? 'is-ok' : 'is-err');
+  formStatus.textContent = text;
+}
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
+  const text = leadText();
 
-  if (form.action.includes('YOUR_FORM_ID')) {
-    formStatus.hidden = false;
-    formStatus.className = 'form__status is-err';
-    formStatus.textContent = 'Форма ещё не подключена: укажите Formspree ID в index.html (см. README). А пока звоните или пишите в мессенджеры.';
+  if (!TELEGRAM.botToken || !TELEGRAM.chatId) {
+    window.open(
+      `https://t.me/${TELEGRAM.fallbackUsername}?text=${encodeURIComponent(text)}`,
+      '_blank'
+    );
+    showStatus(true, 'Открыли чат в Telegram — нажмите «Отправить», и заявка сразу придёт нам.');
     return;
   }
 
   const submitBtn = form.querySelector('button[type="submit"]');
   submitBtn.disabled = true;
   try {
-    const res = await fetch(form.action, {
+    const res = await fetch(`https://api.telegram.org/bot${TELEGRAM.botToken}/sendMessage`, {
       method: 'POST',
-      body: new FormData(form),
-      headers: { Accept: 'application/json' },
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TELEGRAM.chatId, text }),
     });
-    formStatus.hidden = false;
-    if (res.ok) {
-      formStatus.className = 'form__status is-ok';
-      formStatus.textContent = 'Спасибо! Заявка отправлена — перезвоним в течение часа.';
-      form.reset();
-    } else {
-      throw new Error('send failed');
-    }
+    if (!res.ok) throw new Error('send failed');
+    showStatus(true, 'Спасибо! Заявка отправлена — перезвоним в течение часа.');
+    form.reset();
   } catch {
-    formStatus.hidden = false;
-    formStatus.className = 'form__status is-err';
-    formStatus.textContent = 'Не получилось отправить. Позвоните или напишите нам напрямую.';
+    showStatus(false, 'Не получилось отправить автоматически. Позвоните или напишите нам в мессенджер.');
   } finally {
     submitBtn.disabled = false;
   }

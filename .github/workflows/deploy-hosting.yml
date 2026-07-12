@@ -1,0 +1,42 @@
+name: Deploy to reg.ru hosting (FTP)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ftp-deploy
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Деплой выполняется только если в репозитории заданы секреты FTP
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check FTP secrets
+        id: check
+        run: |
+          if [ -n "${{ secrets.FTP_USERNAME }}" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "FTP secrets are not configured, skipping deploy." >&2
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Deploy via FTP
+        if: steps.check.outputs.ok == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER || 'server194.hosting.reg.ru' }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: ${{ secrets.FTP_SERVER_DIR || 'www/xn----htbkhnldzg7g.online/' }}
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.github/**
+            README.md
+            assets/photos/README.md

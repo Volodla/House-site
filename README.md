@@ -2,7 +2,8 @@
 
 Одностраничный продающий сайт (лендинг) готового дома в коттеджном посёлке
 «Резиденции Трилогия», Московская область. Статический сайт без сборки:
-чистые HTML/CSS/JS, хостится бесплатно на GitHub Pages.
+чистые HTML/CSS/JS. Домен — [купить-дом.online](https://xn----htbkhnldzg7g.online/),
+хостинг reg.ru (запасной вариант — GitHub Pages).
 
 ## Что на сайте
 
@@ -14,42 +15,80 @@
 - Интерактивный ипотечный калькулятор (семейная ипотека 6%, аннуитет)
 - Форма заявки + контакты (телефон, WhatsApp, Telegram)
 
-## Что нужно сделать перед публикацией
+## Контакты на сайте
 
-### 1. Добавить фотографии
+Телефон **+7 (916) 910-90-85**, WhatsApp и Telegram **@zheorgiy** уже
+прописаны в блоке контактов `index.html`.
+
+## Заявки в Telegram
+
+Форма отправляет заявки в Telegram. Работает в двух режимах:
+
+**Сейчас (без настройки):** при отправке формы открывается чат Telegram
+с @zheorgiy с уже готовым текстом заявки — посетителю остаётся нажать «Отправить».
+
+**Полностью автоматический режим (рекомендуется):** заявка приходит сообщением
+от бота без действий посетителя. Настройка:
+
+1. В Telegram откройте [@BotFather](https://t.me/BotFather) → команда `/newbot` →
+   придумайте имя — получите **токен** вида `1234567890:AA...`.
+2. Напишите своему новому боту любое сообщение (например `/start`).
+3. Откройте в браузере `https://api.telegram.org/bot<ТОКЕН>/getUpdates` —
+   в ответе найдите `"chat":{"id":123456789}` — это ваш **chat id**.
+4. В файле `js/main.js` в самом низу заполните:
+
+```js
+const TELEGRAM = {
+  botToken: '1234567890:AA...',   // токен от BotFather
+  chatId: '123456789',            // ваш chat id
+  fallbackUsername: 'zheorgiy',
+};
+```
+
+> Токен будет виден в коде сайта. Используйте этого бота только для приёма
+> заявок и ни для чего больше — тогда риска нет.
+
+## Домен купить-дом.online и хостинг reg.ru
+
+Домен `купить-дом.online` (punycode: `xn----htbkhnldzg7g.online`) уже привязан
+к хостингу reg.ru (сервер `server194.hosting.reg.ru`, DNS: `ns1/ns2.hosting.reg.ru`).
+
+### Вариант А — публикация на хостинге reg.ru (рекомендуется)
+
+Workflow `.github/workflows/deploy-hosting.yml` при каждом пуше в `main`
+выгружает сайт на хостинг по FTP. Нужно один раз добавить секреты:
+
+1. В личном кабинете reg.ru откройте карточку хостинга →
+   «Доступы» → найдите **логин и пароль FTP** (это не логин от личного кабинета,
+   у FTP отдельная учётка вида `u1234567`).
+2. В GitHub: **Settings → Secrets and variables → Actions → New repository secret**:
+   - `FTP_USERNAME` — FTP-логин;
+   - `FTP_PASSWORD` — FTP-пароль;
+   - `FTP_SERVER` — если сервер отличается от `server194.hosting.reg.ru`;
+   - `FTP_SERVER_DIR` — если путь к папке сайта отличается от
+     `www/xn----htbkhnldzg7g.online/`.
+3. Запустите workflow «Deploy to reg.ru hosting (FTP)» вручную (Actions → Run
+   workflow) или сделайте любой пуш в `main`.
+
+Не забудьте включить SSL-сертификат для домена в панели хостинга reg.ru
+(бесплатный Let's Encrypt подключается в один клик).
+
+### Вариант Б — GitHub Pages + домен
+
+Если хостинг reg.ru не нужен, сайт можно оставить на GitHub Pages:
+
+1. Settings → Pages → Source: **GitHub Actions** (workflow `deploy.yml` уже готов).
+2. Settings → Pages → Custom domain: `xn----htbkhnldzg7g.online`, включить
+   **Enforce HTTPS**.
+3. В reg.ru в зоне домена заменить записи: `A @ → 185.199.108.153`,
+   `185.199.109.153`, `185.199.110.153`, `185.199.111.153` и
+   `CNAME www → volodla.github.io`.
+
+## Фотографии
 
 Скопируйте фото дома в папку `assets/photos/` с именами из
 [assets/photos/README.md](assets/photos/README.md) (например, `01-facade.jpg`).
 Пока фото нет, на сайте отображаются заглушки — всё остальное работает.
-
-### 2. Указать контакты
-
-В `index.html` найдите блок `id="contact"` и замените:
-
-- `+70000000000` и `+7 (000) 000-00-00` — на реальный номер телефона (2 места: ссылка `tel:` и WhatsApp);
-- `https://t.me/username` — на реальный Telegram.
-
-### 3. Подключить форму заявок (по желанию)
-
-Форма работает через бесплатный сервис [Formspree](https://formspree.io):
-
-1. Зарегистрируйтесь и создайте форму — получите ID вида `xabc1234`.
-2. В `index.html` замените `YOUR_FORM_ID` в `action="https://formspree.io/f/YOUR_FORM_ID"`.
-
-Заявки будут приходить на вашу почту. Пока форма не подключена, посетителю
-предлагается позвонить или написать в мессенджер.
-
-### 4. Включить GitHub Pages
-
-После мержа в `main`:
-
-1. Откройте **Settings → Pages** репозитория.
-2. В разделе **Build and deployment → Source** выберите **GitHub Actions**.
-3. Workflow `.github/workflows/deploy.yml` опубликует сайт автоматически
-   при каждом пуше в `main`.
-
-Сайт будет доступен по адресу `https://volodla.github.io/house-site/`.
-Свой домен можно привязать там же в Settings → Pages → Custom domain.
 
 ## Локальный просмотр
 
@@ -63,8 +102,9 @@ python3 -m http.server 8000
 ```
 index.html              — вся страница
 css/style.css           — стили
-js/main.js              — меню, галерея, калькулятор ипотеки, форма
+js/main.js              — меню, галерея, калькулятор ипотеки, форма → Telegram
 assets/photos/          — фотографии (добавить)
 assets/placeholder.svg  — заглушка вместо отсутствующих фото
-.github/workflows/      — автодеплой на GitHub Pages
+.github/workflows/deploy-hosting.yml — автодеплой на хостинг reg.ru по FTP
+.github/workflows/deploy.yml         — автодеплой на GitHub Pages (запасной)
 ```

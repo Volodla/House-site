@@ -124,7 +124,7 @@ h1, h2 { font-family: var(--font-display); line-height: 1.15; }
 .hero__bg::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(20, 24, 22, .45) 0%, rgba(20, 24, 22, .25) 40%, rgba(20, 24, 22, .82) 100%);
+  background: linear-gradient(180deg, rgba(20, 24, 22, .60) 0%, rgba(20, 24, 22, .45) 40%, rgba(20, 24, 22, .88) 100%);
 }
 .hero__label {
   display: inline-block;

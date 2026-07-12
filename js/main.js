@@ -106,7 +106,7 @@ document.addEventListener('keydown', (e) => {
  * в чате Telegram с @zheorgiy — посетителю остаётся нажать «Отправить».
  */
 const TELEGRAM = {
-  botToken: '',
+  botToken: '8890037003:AAF5T3dSL5JVGfEhG2x6fF9g4YU-nlBJ2nM',
   chatId: '',
   fallbackUsername: 'zheorgiy',
 };

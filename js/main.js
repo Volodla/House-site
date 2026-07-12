@@ -21,6 +21,9 @@ nav.querySelectorAll('a').forEach((link) =>
 /* ===== Ипотечный калькулятор ===== */
 const PRICE = 15_900_000;
 const RATE = 0.06;
+// Лимит кредита по семейной ипотеке — 12 млн ₽,
+// поэтому минимальный первоначальный взнос — 3,9 млн ₽ (задан в min слайдера).
+const MAX_LOAN = 12_000_000;
 
 const downPaymentInput = document.getElementById('downPayment');
 const termInput = document.getElementById('term');
@@ -45,11 +48,15 @@ function annuity(loan, months) {
 }
 
 function recalc() {
-  const dpPercent = Number(downPaymentInput.value);
+  let downPayment = Number(downPaymentInput.value);
   const years = Number(termInput.value);
-  const downPayment = PRICE * dpPercent / 100;
+  if (PRICE - downPayment > MAX_LOAN) {
+    downPayment = PRICE - MAX_LOAN;
+    downPaymentInput.value = downPayment;
+  }
   const loan = PRICE - downPayment;
   const payment = annuity(loan, years * 12);
+  const dpPercent = (downPayment / PRICE * 100).toLocaleString('ru-RU', { maximumFractionDigits: 1 });
 
   downPaymentOut.textContent = `${fmt(downPayment)} (${dpPercent}%)`;
   termOut.textContent = yearsLabel(years);

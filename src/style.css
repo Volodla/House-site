@@ -69,7 +69,7 @@ button, input { font: inherit; }
 .hero-image {
   position: absolute;
   inset: 0;
-  background: url("https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=2200&q=90") center 54% / cover;
+  background: url("https://images.unsplash.com/photo-1758448756207-54505680d130?auto=format&fit=crop&w=2200&q=90") center 54% / cover;
   animation: heroZoom 14s ease-out both;
 }
 @keyframes heroZoom { from { transform: scale(1.055); } to { transform: scale(1); } }
@@ -212,7 +212,7 @@ blockquote footer p { margin:0; }
   body { font-size:14px; }
   .brand small { display:none; }
   .hero { height:100svh; min-height:650px; }
-  .hero-image { background-position:62% center; }
+  .hero-image { background-position:58% center; }
   .hero-content { bottom:6vh; }
   .hero h1 { font-size:47px; line-height:1.12; }
   .hero-bottom { margin-top:30px; align-items:flex-end; gap:12px; }
